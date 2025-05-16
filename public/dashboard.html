@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 5px 0 0;
+    }
+
+    button.logout-btn {
+      background-color: #dc3545;
+      padding: 8px 16px;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button.logout-btn:hover {
+      background-color: #c82333;
+    }
+
+    h2.section-title {
+      color: #222;
+      margin-top: 40px;
+      font-size: 22px;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 5px;
+    }
+
+    .ride-card {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .ride-card p {
+      margin: 5px 0;
+    }
+
+    .ride-card button {
+      padding: 6px 14px;
+      margin-top: 10px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .ride-card button:hover {
+      background-color: #0056b3;
+    }
+
+    .loader {
+      color: gray;
+      font-style: italic;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Welcome, <span id="userNameDisplay"></span></h1>
+      <p>Your Unique Code: <span id="userCodeDisplay"></span></p>
+    </div>
+    <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  </header>
+
+  <main>
+    <section>
+      <h2 class="section-title">Your Published Rides</h2>
+      <div id="publishedRidesContainer"><p class="loader">Loading published rides...</p></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Your Booked Rides</h2>
+      <div id="bookedRidesContainer"><p class="loader">Loading booked rides...</p></div>
+    </section>
+  </main>
+
+  <script>
+    // --- Load session values ---
+    const userName = localStorage.getItem('username');
+    const userCode = localStorage.getItem('uniqueCode');
+
+    if (!userName || !userCode) {
+      alert('Session expired! Please log in again.');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('userNameDisplay').textContent = userName;
+    document.getElementById('userCodeDisplay').textContent = userCode;
+
+    // --- Fetch Published Rides ---
+    fetch(`/api/rides/user/${userCode}`)
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('publishedRidesContainer');
+        container.innerHTML = '';
+        if (!data || data.length === 0) {
+          container.innerHTML = '<p>No rides published yet.</p>';
+        } else {
+          data.forEach(ride => {
+            const div = document.createElement('div');
+            div.className = 'ride-card';
+            div.innerHTML = `
+              <p><strong>From:</strong> ${ride.source}</p>
+              <p><strong>To:</strong> ${ride.destination}</p>
+              <p><strong>Date:</strong> ${ride.date}</p>
+              <p><strong>Time:</strong> ${ride.time}</p>
+              <p><strong>Seats Available:</strong> ${ride.seats}</p>
+              <p><strong>Price/Seat:</strong> ₹${ride.price}</p>
+              <p><strong>Ride Code:</strong> <span style="color: #3f51b5; font-weight: bold;">${ride.rideCode || 'N/A'}</span></p>
+              <button onclick="cancelPublishedRide('${ride._id}')">Cancel Ride</button>
+            `;
+            container.appendChild(div);
+          });
+        }
+      })
+      .catch(err => {
+        console.error('❌ Error fetching published rides:', err);
+        document.getElementById('publishedRidesContainer').innerHTML = '<p style="color:red;">Error loading published rides.</p>';
+      });
+
+    // --- Fetch Booked Rides ---
+    fetch(`/api/rides/booked/${userCode}`)
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('bookedRidesContainer');
+        container.innerHTML = '';
+        if (!data || data.length === 0) {
+          container.innerHTML = '<p>No rides booked yet.</p>';
+        } else {
+          data.forEach(ride => {
+            const div = document.createElement('div');
+            div.className = 'ride-card';
+            div.innerHTML = `
+              <p><strong>From:</strong> ${ride.source}</p>
+              <p><strong>To:</strong> ${ride.destination}</p>
+              <p><strong>Date:</strong> ${ride.date}</p>
+              <p><strong>Time:</strong> ${ride.time}</p>
+              <p><strong>Booked Seats:</strong> ${ride.bookedSeats || 1}</p>
+              <p><strong>Total Price:</strong> ₹${ride.totalPrice || ride.price}</p>
+              <p><strong>Published By:</strong> ${ride.publishedBy}</p>
+              <p><strong>Ride Code:</strong> <span style="color: #e91e63; font-weight: bold;">${ride.rideCode || 'N/A'}</span></p>
+              <p style="color: green; font-weight: bold;">✅ You booked this ride</p>
+              <button onclick="cancelBookedRide('${ride._id}')">Cancel Booking</button>
+            `;
+            container.appendChild(div);
+          });
+        }
+      })
+      .catch(err => {
+        console.error('❌ Error fetching booked rides:', err);
+        document.getElementById('bookedRidesContainer').innerHTML = '<p style="color:red;">Error loading booked rides.</p>';
+      });
+
+    // --- Cancel Published Ride ---
+    function cancelPublishedRide(rideId) {
+      if (!rideId) return alert("Invalid Ride ID");
+
+      if (confirm("Are you sure you want to cancel this published ride?")) {
+        fetch(`/rides/cancel/published/${rideId}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(data => {
+            alert(data.message || 'Ride cancelled successfully.');
+            location.reload();
+          })
+          .catch(err => {
+            console.error('Error cancelling published ride:', err);
+            alert("Failed to cancel the ride.");
+          });
+      }
+    }
+
+    // --- Cancel Booked Ride ---
+    function cancelBookedRide(bookingId) {
+      if (!bookingId) return alert("Invalid Booking ID");
+
+      if (confirm("Are you sure you want to cancel your booking?")) {
+        fetch(`/rides/cancel/booked/${bookingId}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(data => {
+            alert(data.message || 'Booking cancelled successfully.');
+            location.reload();
+          })
+          .catch(err => {
+            console.error('Error cancelling booked ride:', err);
+            alert("Failed to cancel the booking.");
+          });
+      }
+    }
+
+    // --- Logout User ---
+    function logoutUser() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

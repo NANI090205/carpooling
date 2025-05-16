@@ -1,0 +1,205 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f8fb;
+    color: #333;
+  }
+  
+  /* Header */
+  header {
+    position: fixed;
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 2px solid #000000;
+    z-index: 999;
+    text-align: center;
+    padding: 10px 0;
+  }
+  header h1 {
+    background-color: #3374c9;
+    color: azure;
+    padding: 10px 0;
+  }
+  #login {
+    margin-top: 10px;
+  }
+  #login a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #3374c9;
+    font-weight: bold;
+  }
+  
+  /* Main Image */
+  #mainimg {
+    padding-top: 120px;
+    width: 100%;
+  }
+  #mainimg img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-bottom: 4px solid #3374c9;
+  }
+  
+  /* Ride Buttons */
+  #ridedetails {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    background-color: #3088e0;
+    padding: 20px;
+    border-radius: 15px;
+    width: fit-content;
+    margin: 40px auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  #ridedetails button {
+    background-color: #000000;
+    color: #e0f7ff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  #ridedetails button:hover {
+    background-color: #1a1a1a;
+  }
+  
+  /* Info Section */
+  .info-section {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    padding: 60px 20px;
+    background: #ffffff;
+    gap: 30px;
+  }
+  .info-box {
+    flex: 1;
+    max-width: 300px;
+    text-align: center;
+  }
+  .info-box i {
+    font-size: 32px;
+    color: #3374c9;
+    margin-bottom: 15px;
+  }
+  .info-box h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .info-box p {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  /* Safety Section */
+  .safety-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #00b4ff;
+    padding: 60px 40px;
+    color: white;
+    flex-wrap: wrap;
+  }
+  .safety-img img {
+    max-width: 300px;
+    margin-right: 40px;
+  }
+  .safety-text {
+    max-width: 500px;
+  }
+  .safety-text h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+  .safety-text p {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+  .safety-text button {
+    background-color: white;
+    color: #00b4ff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .safety-text button:hover {
+    background-color: #e0f7ff;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #f4f4f4;
+    padding: 30px;
+    text-align: center;
+    font-size: 14px;
+    color: #444;
+    margin-top: 50px;
+  }
+  footer main {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+  }
+  footer button {
+    background-color: #3088e0;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  footer button:hover {
+    background-color: #256bb5;
+  }
+  button[onclick*="logout"] {
+    display: block;
+    margin: 40px auto;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  button[onclick*="logout"]:hover {
+    background-color: #c82333;
+  }
+  /* Responsive */
+  @media screen and (max-width: 768px) {
+    #ridedetails {
+      flex-direction: column;
+      align-items: center;
+    }
+    .safety-section {
+      flex-direction: column;
+      text-align: center;
+    }
+    .safety-img img {
+      margin: 0 0 20px 0;
+    }
+    footer main {
+      flex-direction: column;
+    }
+  }
+  
