@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = passwordInput.value.trim();
 
     try {
-      const response = await fetch("http://localhost:4000/login", {
+      const response = await fetch("/api/users/login", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -29,18 +29,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store username and unique code
         localStorage.setItem("username", data.username);
-        localStorage.setItem("userCode", data.userCode); // Must be sent from backend
+        localStorage.setItem("userCode", data.userCode);
 
-        // Redirect to homepage
         window.location.href = "index.html";
       } else {
-        errorMessage.textContent = data.message || "Invalid username or password.";
+        errorMessage.textContent =
+          data.message || "Invalid username or password.";
       }
     } catch (err) {
       console.error("Login error:", err);
-      errorMessage.textContent = "An error occurred. Please try again.";
+      errorMessage.textContent =
+        "An error occurred. Please try again.";
     }
   });
 });
