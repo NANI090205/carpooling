@@ -1,4 +1,4 @@
-const apiBase = "http://localhost:4000/api";
+const apiBase = "/api";
 
 // SIGNUP
 async function signupUser(event) {
