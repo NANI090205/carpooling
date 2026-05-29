@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Ride = require('../models/UserRides');
+const Ride = require('../models/Ride');
 const BookedRide = require('../models/BookedRide');
 const User = require('../models/User');
 const sendMail = require('../utils/mailer');
