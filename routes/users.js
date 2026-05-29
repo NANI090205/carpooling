@@ -13,36 +13,67 @@ const generateUserCode = () => {
 
 // Signup route
 router.post("/signup", async (req, res) => {
-    const { username, email, password } = req.body;
-    console.log("Signup payload:", req.body);
-  
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
-  
-    try {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: "Email already in use." });
-      }
-  
-      const uniqueCode = Math.floor(10000 + Math.random() * 90000);
-  
-      const newUser = new User({
-        username,
-        email,
-        password,
-        uniqueCode,
+  const { username, email, password } = req.body;
+
+  console.log("Signup payload:", req.body);
+
+  try {
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "Email already in use."
       });
-  
-      await newUser.save();
-      res.status(200).json({ message: "Signup successful" });
-  
-    } catch (err) {
-      console.error("Signup Error:", err);
-      res.status(500).json({ message: "Server error during signup." });
     }
-  });
+
+    const uniqueCode =
+      Math.floor(
+        10000 + Math.random() * 90000
+      );
+
+    const newUser = new User({
+      username,
+      email,
+      password,
+      uniqueCode
+    });
+
+    const savedUser =
+      await newUser.save();
+
+    console.log(
+      "User saved successfully:",
+      savedUser
+    );
+
+    const totalUsers =
+      await User.countDocuments();
+
+    console.log(
+      "Total users in DB:",
+      totalUsers
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Signup successful"
+    });
+
+  } catch (err) {
+
+    console.error(
+      "Signup Error:",
+      err
+    );
+
+    res.status(500).json({
+      message:
+        "Server error during signup."
+    });
+
+  }
+});
   
 // Login route
 router.post("/login", async (req, res) => {
