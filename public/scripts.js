@@ -1,166 +1,316 @@
 const apiBase = "/api";
 
-// SIGNUP
-async function signupUser(event) {
-    event.preventDefault();
-    const username = document.getElementById("username").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+/* ==========================
+   SIGNUP
+========================== */
+document.addEventListener("DOMContentLoaded", () => {
 
-    const res = await fetch(`${apiBase}/users/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password })
-    });
+    const signupForm = document.getElementById("signupForm");
 
-    const data = await res.json();
-    if (data.success) {
-        alert("Signup successful! Please log in.");
-        window.location.href = "/login";
-    } else {
-        alert(data.message);
+    if (signupForm) {
+        signupForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (!username || !email || !password) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${apiBase}/users/signup`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("Signup successful!");
+                    window.location.href = "login.html";
+                } else {
+                    alert(data.message || "Signup failed");
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Signup Error");
+            }
+        });
     }
-}
 
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-  
-    const username = document.getElementById("username").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-  
-    if (!username || !email || !password) {
-      alert("Please fill all fields");
-      return;
-    }
-  
-    try {
-      const res = await fetch("/api/users/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
-  
-      if (res.ok) {
-        window.location.href = "login.html";
-      } else {
-        const data = await res.json();
-        alert(data.message || "Signup failed");
-      }
-    } catch (err) {
-      alert("Error signing up: " + err.message);
-    }
-  });
-  
+});
 
-// LOGIN
+
+/* ==========================
+   LOGIN
+========================== */
 async function loginUser(event) {
+
     event.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
 
-    const res = await fetch(`${apiBase}/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-    });
+    const email =
+        document.getElementById("email").value.trim();
 
-    const data = await res.json();
-    if (data.success) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href = "/";
-    } else {
-        alert(data.message);
+    const password =
+        document.getElementById("password").value.trim();
+
+    try {
+
+        const res = await fetch(`${apiBase}/users/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+
+            const userData = {
+                username: data.username,
+                email: data.email,
+                uniqueCode: data.uniqueCode
+            };
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(userData)
+            );
+
+            localStorage.setItem(
+                "username",
+                data.username
+            );
+
+            localStorage.setItem(
+                "uniqueCode",
+                data.uniqueCode
+            );
+
+            alert("Login successful!");
+
+            window.location.href = "index.html";
+
+        } else {
+            alert(data.message || "Login failed");
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Server Error");
     }
 }
 
-// LOGOUT
+
+/* ==========================
+   LOGOUT
+========================== */
 function logoutUser() {
+
     localStorage.removeItem("user");
-    window.location.href = "/login";
+    localStorage.removeItem("username");
+    localStorage.removeItem("uniqueCode");
+
+    window.location.href = "login.html";
 }
 
-// DISPLAY UNIQUE CODE ON PAGES
+
+/* ==========================
+   SHOW USER CODE
+========================== */
 function showUserCode() {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-        document.getElementById("uniqueCode").textContent = `Your Unique Code: ${user.uniqueCode}`;
+
+    const user =
+        JSON.parse(localStorage.getItem("user"));
+
+    if (
+        user &&
+        document.getElementById("uniqueCode")
+    ) {
+        document.getElementById(
+            "uniqueCode"
+        ).textContent =
+            `Your Unique Code: ${user.uniqueCode}`;
     }
 }
 
-// PUBLISH RIDE
+
+/* ==========================
+   PUBLISH RIDE
+========================== */
 async function publishRide(event) {
+
     event.preventDefault();
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) return alert("You must be logged in.");
 
-    const source = document.getElementById("source").value;
-    const destination = document.getElementById("destination").value;
-    const date = document.getElementById("date").value;
-    const time = document.getElementById("time").value;
-    const seats = document.getElementById("seats").value;
+    const user =
+        JSON.parse(localStorage.getItem("user"));
 
-    const res = await fetch(`${apiBase}/rides/publish`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            uniqueCode: user.uniqueCode,
-            source,
-            destination,
-            date,
-            time,
-            seats
-        })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-        window.location.href = "/dashboard";
-    } else {
-        alert(data.message);
-    }
-}
-
-// SHOW DASHBOARD RIDES
-async function loadDashboardRides() {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) return alert("Not authorized");
-
-    const res = await fetch(`${apiBase}/rides/user/${user.uniqueCode}`);
-    const data = await res.json();
-
-    const container = document.getElementById("rideList");
-    container.innerHTML = "";
-
-    if (data.rides.length === 0) {
-        container.innerHTML = "<p>No rides published.</p>";
+    if (!user) {
+        alert("Please login first");
         return;
     }
 
-    data.rides.forEach((ride) => {
-        const div = document.createElement("div");
-        div.className = "ride-card";
-        div.innerHTML = `
-            <p><strong>From:</strong> ${ride.source}</p>
-            <p><strong>To:</strong> ${ride.destination}</p>
-            <p><strong>Date:</strong> ${ride.date}</p>
-            <p><strong>Time:</strong> ${ride.time}</p>
-            <p><strong>Seats:</strong> ${ride.seatsAvailable}</p>
-        `;
-        container.appendChild(div);
-    });
-}
-if (res.ok) {
-    localStorage.setItem("username", data.username);   // Optional
-    localStorage.setItem("uniqueCode", data.code);     // Save the unique 5-digit code
-    window.location.href = "index.html";
-  }
-  window.addEventListener("DOMContentLoaded", () => {
-    const code = localStorage.getItem("uniqueCode");
-    if (code) {
-      document.getElementById("uniqueCodeDisplay").innerText = code;
+    const source =
+        document.getElementById("source").value;
+
+    const destination =
+        document.getElementById("destination").value;
+
+    const date =
+        document.getElementById("date").value;
+
+    const time =
+        document.getElementById("time").value;
+
+    const seats =
+        document.getElementById("seats").value;
+
+    const price =
+        document.getElementById("price").value;
+
+    try {
+
+        const res = await fetch(
+            `${apiBase}/rides/publish`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: user.username,
+                    uniqueCode: user.uniqueCode,
+                    source,
+                    destination,
+                    date,
+                    time,
+                    seats,
+                    price
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert(data.message);
+            window.location.href =
+                "dashboard.html";
+        } else {
+            alert(data.message);
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Error publishing ride");
     }
-  });
-  
+}
+
+
+/* ==========================
+   DASHBOARD RIDES
+========================== */
+async function loadDashboardRides() {
+
+    const user =
+        JSON.parse(localStorage.getItem("user"));
+
+    if (!user) return;
+
+    try {
+
+        const res = await fetch(
+            `${apiBase}/rides/user/${user.uniqueCode}`
+        );
+
+        const rides = await res.json();
+
+        const container =
+            document.getElementById("rideList");
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (!rides.length) {
+
+            container.innerHTML =
+                "<p>No rides published.</p>";
+
+            return;
+        }
+
+        rides.forEach((ride) => {
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "ride-card";
+
+            div.innerHTML = `
+                <p><strong>From:</strong> ${ride.source}</p>
+                <p><strong>To:</strong> ${ride.destination}</p>
+                <p><strong>Date:</strong> ${ride.date}</p>
+                <p><strong>Time:</strong> ${ride.time}</p>
+                <p><strong>Seats:</strong> ${ride.seats}</p>
+                <p><strong>Price:</strong> ₹${ride.price}</p>
+                <p><strong>Ride Code:</strong> ${ride.rideCode}</p>
+            `;
+
+            container.appendChild(div);
+
+        });
+
+    } catch (err) {
+
+        console.error(
+            "Dashboard loading error:",
+            err
+        );
+
+    }
+}
+
+
+/* ==========================
+   SHOW UNIQUE CODE
+========================== */
+window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const code =
+            localStorage.getItem(
+                "uniqueCode"
+            );
+
+        const element =
+            document.getElementById(
+                "uniqueCodeDisplay"
+            );
+
+        if (
+            code &&
+            element
+        ) {
+            element.innerText = code;
+        }
+    }
+);
