@@ -85,12 +85,31 @@
       maxZoom: 18,
     }).addTo(map);
 
-    async function getLocationName(lat, lon) {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-      const data = await response.json();
-      return data.address.city || data.address.town || data.address.village || data.display_name;
-    }
+async function getLocationName(lat, lon) {
 
+  try {
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+    );
+
+    const data = await response.json();
+
+    return (
+      data.address?.city ||
+      data.address?.town ||
+      data.address?.village ||
+      data.display_name ||
+      "Unknown Location"
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    return "Unknown Location";
+  }
+}
     map.on("click", async function (e) {
       const lat = e.latlng.lat;
       const lon = e.latlng.lng;
@@ -110,30 +129,78 @@
       }
     });
 
-    document.getElementById("publishForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
+document.getElementById("publishForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-      const source = sourceInput.value;
-      const destination = destinationInput.value;
-      const date = document.getElementById("date").value;
-      const time = document.getElementById("time").value;
-      const seats = document.getElementById("seats").value;
-      const price = document.getElementById("price").value;
+  const source = sourceInput.value.trim();
+  const destination = destinationInput.value.trim();
 
-      const res = await fetch("/api/rides/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          uniqueCode,
-          source,
-          destination,
-          date,
-          time,
-          seats,
-          price,
-        }),
-      });
+  if (!source || !destination) {
+    alert("Please select source and destination on the map.");
+    return;
+  }
+
+  if (source === destination) {
+    alert("Source and destination cannot be the same.");
+    return;
+  }
+
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+  const seats = document.getElementById("seats").value;
+  const price = document.getElementById("price").value;
+
+  try {
+
+    const res = await fetch("/api/rides/publish", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username,
+        uniqueCode,
+        source,
+        destination,
+        date,
+        time,
+        seats: Number(seats),
+        price: Number(price)
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+
+      alert(
+        `Ride Published Successfully!\n\nRide Code: ${data.rideCode}`
+      );
+
+      window.location.href = "dashboard.html";
+
+    } else {
+
+      alert(
+        data.message ||
+        "Failed to publish ride."
+      );
+
+    }
+
+  } catch (err) {
+
+    console.error(
+      "Publish Ride Error:",
+      err
+    );
+
+    alert(
+      "Server error while publishing ride."
+    );
+
+  }
+});
 
       const data = await res.json();
       if (res.ok) {
