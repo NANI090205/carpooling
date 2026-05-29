@@ -11,7 +11,7 @@ const dashboardSchema = new mongoose.Schema({
   // Refers to rides the user has published
   publishedRides: [{ 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: "UserRides" 
+    ref: "Ride" 
   }],
 
   // Refers to rides the user has booked
