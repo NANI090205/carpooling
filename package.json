@@ -9,8 +9,7 @@
   },
   "scripts": {
     "start": "node app.js"
-  }
-},
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
@@ -36,9 +35,7 @@
     "pug": "^3.0.3"
   },
   "description": "",
-  "main": "app.js",
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "license": "ISC"
 }
