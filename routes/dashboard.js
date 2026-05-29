@@ -3,7 +3,7 @@ const router = express.Router();
 
 const Dashboard = require('../models/Dashboard');
 const User = require('../models/User');
-const UserRides = require('../models/UserRides');
+const Ride = require('../models/Ride');
 const BookedRide = require('../models/BookedRide');
 
 //GET: Dashboard for a specific user
@@ -13,7 +13,7 @@ router.get('/:userId', async (req, res) => {
       .populate('user', 'username email uniqueCode')
       .populate({
         path: 'publishedRides',
-        model: 'UserRides'
+        model: 'Ride'
       })
       .populate({
         path: 'bookedRides',
