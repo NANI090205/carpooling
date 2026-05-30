@@ -263,55 +263,72 @@ footer {
     document.getElementById('searchInput').addEventListener('input', fetchRides);
     document.getElementById('sortSelect').addEventListener('change', fetchRides);
 
-    async function bookRide(rideId, publishedBy, pricePerSeat, maxSeats) {
-      const seatInput = document.getElementById(`seats-${rideId}`);
-      const seatsRequested = parseInt(seatInput.value);
+async function bookRide(rideId, publishedBy, pricePerSeat, maxSeats) {
 
-      if (!seatsRequested || seatsRequested <= 0 || seatsRequested > maxSeats) {
-        alert(`Please enter a valid number of seats (1 to ${maxSeats})`);
-        return;
-      }
+  try {
 
-      const totalPrice = seatsRequested * pricePerSeat;
+    const seatInput = document.getElementById(`seats-${rideId}`);
+    const seatsRequested = parseInt(seatInput.value);
 
-      const res = await fetch('/api/rides/book', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rideId,
-          bookedBy: userName,
-          bookedByCode: userCode,
-          publishedBy,
-          seatsBooked: seatsRequested,
-          totalPrice
-        })
-      });
+    if (!seatsRequested || seatsRequested <= 0 || seatsRequested > maxSeats) {
+      alert(`Please enter a valid number of seats (1 to ${maxSeats})`);
+      return;
+    }
 
-      const data = await res.json();
-alert("API Response Received");
-console.log(data);
+    const totalPrice = seatsRequested * pricePerSeat;
 
+    const response = await fetch('/api/rides/book', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        rideId,
+        bookedBy: userName,
+        bookedByCode: userCode,
+        publishedBy,
+        seatsBooked: seatsRequested,
+        totalPrice
+      })
+    });
 
-if (res.ok) {
-alert("Inside Success Block");
-  showBillCard(data.rideDetails);
+    const data = await response.json();
 
-  console.log("Booking Success");
+    console.log("Booking Response:", data);
 
-  setTimeout(() => {
-alert("Redirecting Now");
-    console.log("Redirecting...");
+    if (response.ok) {
 
-    window.location.href = "/dashboard";
+      const billCard = document.getElementById('billCard');
 
-  }, 3000);
+      billCard.innerHTML = `
+        <h3>🎉 Ride Booked Successfully!</h3>
+        <p><strong>Booked By:</strong> ${data.rideDetails.bookedBy}</p>
+        <p><strong>From:</strong> ${data.rideDetails.source}</p>
+        <p><strong>To:</strong> ${data.rideDetails.destination}</p>
+        <p><strong>Date:</strong> ${data.rideDetails.date}</p>
+        <p><strong>Time:</strong> ${data.rideDetails.time}</p>
+        <p><strong>Seats Booked:</strong> ${data.rideDetails.seatsBooked}</p>
+        <p><strong>Total Price:</strong> ₹${data.rideDetails.totalPrice}</p>
+      `;
 
-} else {
+      billCard.style.display = 'block';
 
-  alert(data.message || "Booking Failed");
+      setTimeout(() => {
+        location.href = "/dashboard";
+      }, 3000);
 
-}
+    } else {
 
+      alert(data.message || "Booking failed");
+
+    }
+
+  } catch (error) {
+
+    console.error("Booking Error:", error);
+    alert("Error booking ride");
+
+  }
 } // <-- closes bookRide()
 
 
