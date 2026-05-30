@@ -287,17 +287,18 @@ footer {
       });
 
       const data = await res.json();
-
+alert("API Response Received");
+console.log(data);
 
 
 if (res.ok) {
-
+alert("Inside Success Block");
   showBillCard(data.rideDetails);
 
   console.log("Booking Success");
 
   setTimeout(() => {
-
+alert("Redirecting Now");
     console.log("Redirecting...");
 
     window.location.href = "/dashboard";
