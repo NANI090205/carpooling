@@ -253,7 +253,10 @@ footer {
           <p><strong>Seats Available:</strong> ${ride.seats}</p>
           <p><strong>Price (per seat):</strong> ₹${ride.price}</p>
           <input type="number" id="seats-${ride._id}" placeholder="Seats to book" min="1" max="${ride.seats}" />
-          <button onclick="bookRide('${ride._id}', '${ride.username}', ${ride.price}, ${ride.seats})">Book Ride</button>
+          <button type="button"
+onclick="bookRide('${ride._id}', '${ride.username}', ${ride.price}, ${ride.seats})">
+  Book Ride
+</button>
         `;
         container.appendChild(div);
       });
