@@ -288,6 +288,8 @@ footer {
 
       const data = await res.json();
 
+
+
 if (res.ok) {
 
   showBillCard(data.rideDetails);
@@ -298,12 +300,19 @@ if (res.ok) {
 
     console.log("Redirecting...");
 
-    window.location.href =
-      "/dashboard";
+    window.location.href = "/dashboard";
 
   }, 3000);
 
-} 
+} else {
+
+  alert(data.message || "Booking Failed");
+
+}
+
+} // <-- closes bookRide()
+
+
 
     function showBillCard(details) {
       const billCard = document.getElementById('billCard');
